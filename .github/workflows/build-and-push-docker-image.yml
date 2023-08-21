@@ -1,0 +1,54 @@
+name: Build and push Docker image
+
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up the repository
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push pims
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            ENTRYPOINT_SCRIPTS_VERSION=${{ vars.ENTRYPOINT_SCRIPTS_VERSION }}
+            GUNICORN_VERSION=${{ vars.GUNICORN_VERSION }}
+            OPENJPEG_URL=${{ vars.OPENJPEG_URL }}
+            OPENJPEG_VERSION=${{ vars.OPENJPEG_VERSION }}
+            PIMS_REVISION=${{ github.sha }}
+            PIMS_VERSION=${{ github.ref_name }}
+            PY_VERSION=${{ vars.PYTHON_VERSION }}
+            SETUPTOOLS_VERSION=${{ vars.SETUPTOOLS_VERSION }}
+            UBUNTU_VERSION=${{ vars.UBUNTU_VERSION }}
+            VIPS_URL=${{ vars.VIPS_URL }}
+            VIPS_VERSION=${{ vars.VIPS_VERSION }}
+          context: .
+          file: ./docker/backend.dockerfile
+          push: true
+          tags: cytomineuliege/pims:${{ github.ref_name }}-community-plugins
+
+      - name: Build and push pims-worker
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            FROM_NAMESPACE=cytomineuliege
+            FROM_VERSION=${{ github.ref_name }}-community-plugins
+          context: .
+          file: ./docker/worker.dockerfile
+          push: true
+          tags: cytomineuliege/pims-worker:${{ github.ref_name }}-community-plugins
