@@ -59,7 +59,7 @@ contourpy==1.0.7
     # via matplotlib
 cycler==0.11.0
     # via matplotlib
-cytomine-python-client==2.3.4
+cytomine-python-client==2.9.0
     # via pims (setup.py)
 entrypoints==0.4
     # via numcodecs
