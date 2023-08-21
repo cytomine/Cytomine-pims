@@ -73,7 +73,7 @@ def get_image(path, filename):
         except Exception as e:
             print("Creation of histogram representation could not be done")
             print(e)
-			
+            
 def test_png_exists(image_path_png):
     path, filename = image_path_png
     get_image(path, filename)
@@ -82,7 +82,7 @@ def test_png_exists(image_path_png):
 def test_png_info(client, image_path_png):
     _, filename = image_path_png
     info_test(client, filename, "png")
-	
+    
 def test_png_norm_tile(client, image_path_png):
     path, filename = image_path_png
     response = client.get(f"/image/upload_test_png/{filename}/normalized-tile/zoom/1/ti/0", headers={"accept": "image/jpeg"})
@@ -95,23 +95,23 @@ def test_png_norm_tile(client, image_path_png):
     width, height = img_original.size
     assert width_resp == 256 or width_resp == width
     assert height_resp == 256 or height_resp == height
-	
+    
 def test_png_thumb(client, image_path_png):
     _, filename = image_path_png
     thumb_test(client, filename, "png")
-	
+    
 def test_png_resized(client, image_path_png):
     _, filename = image_path_png
     resized_test(client, filename, "png")
-	
+    
 def test_png_mask(client, image_path_png):
     _, filename = image_path_png
     mask_test(client, filename, "png")
-	
+    
 def test_png_crop(client, image_path_png):
     _, filename = image_path_png
     crop_test(client, filename, "png")
-	
+    
 @pytest.mark.skip(reason="Does not return the correct response code")
 def test_png_crop_null_annot(client, image_path_png):
     _, filename = image_path_png

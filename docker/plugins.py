@@ -30,14 +30,12 @@ class Method(str, Enum):
     INSTALL = "install"
 
 
-def load_plugin_list(csv_content):
-    if type(csv_content) is str:
-        csv_content = csv_content.split("\n")
-    plugins = [
-        {k: v for k, v in row.items()}
-        for row in csv.DictReader(csv_content, skipinitialspace=True)
-    ]
-    return plugins
+def load_plugin_list(csv_path):
+    with open(csv_path, "r") as file:
+        return [
+            {k: v for k, v in row.items()}
+            for row in csv.DictReader(file, skipinitialspace=True)
+        ]
 
 
 def enabled_plugins(plugins):
@@ -50,9 +48,9 @@ def download_plugins(plugins, install_path):
 
         path = os.path.join(install_path, plugin['name'])
         command = f"git clone {plugin['git_url']} {path}"
-        if plugin['git_branch']:
-            command += f" && cd {path} && git checkout {plugin['git_branch']}"
-
+        if plugin['git_branch_or_tag']:
+            command += f" && cd {path} && git checkout {plugin['git_branch_or_tag']}"
+        
         output = subprocess.run(command, shell=True, check=True)
         print(output.stdout)
         print(output.stderr)
@@ -85,7 +83,7 @@ def install_python_plugins(plugins, install_path):
 
 if __name__ == '__main__':
     parser = ArgumentParser(prog="PIMS Plugins installer")
-    parser.add_argument('--plugin_csv', help="Plugin list CSV content", nargs='*')
+    parser.add_argument('--plugin_csv_path', help="Plugin list CSV path")
     parser.add_argument('--install_path', help="Plugin installation absolute path")
     parser.add_argument(
         '--method', help="What method to apply",
@@ -98,7 +96,7 @@ if __name__ == '__main__':
     )
     params, other = parser.parse_known_args(sys.argv[1:])
 
-    plugins = enabled_plugins(load_plugin_list(params.plugin_csv))
+    plugins = enabled_plugins(load_plugin_list(params.plugin_csv_path))
 
     os.makedirs(params.install_path, exist_ok=True)
 

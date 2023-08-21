@@ -20,7 +20,7 @@ def get_image(path, filename):
     # If image does not exist locally -> download image
     if not os.path.exists(path):
         os.mkdir(path)
-	
+    
     if not os.path.exists(filepath):
         try:
             url = f"https://data.cytomine.coop/open/uliege/{filename}" #OAC
@@ -28,7 +28,7 @@ def get_image(path, filename):
         except Exception as e:
             print("Could not download image")
             print(e)
-	
+    
     if not os.path.exists(os.path.join(path, "processed")):
         try:
             fi = FileImporter(filepath)
@@ -72,12 +72,12 @@ def get_image(path, filename):
         except Exception as e:
             print("Creation of histogram representation could not be done")
             print(e)
-			
+            
 def test_tiff_exists(image_path_tiff):
-	# Test if the file exists, either locally either with the OAC
-	path, filename = image_path_tiff
-	get_image(path, filename)
-	assert os.path.exists(os.path.join(path, filename)) == True
+    # Test if the file exists, either locally either with the OAC
+    path, filename = image_path_tiff
+    get_image(path, filename)
+    assert os.path.exists(os.path.join(path, filename)) == True
 
 def test_tiff_info(client, image_path_tiff):
     _, filename = image_path_tiff 
@@ -86,7 +86,7 @@ def test_tiff_info(client, image_path_tiff):
     assert "tiff" in response.json()['image']['original_format'].lower()
     assert response.json()['image']['width'] == 42460
     assert response.json()['image']['height'] == 29140
-	
+    
 def test_tiff_metadata(client, image_path_tiff):
     _, filename = image_path_tiff
     response = client.get(f'/image/upload_test_tiff/{filename}/metadata')
@@ -101,7 +101,7 @@ def test_tiff_metadata(client, image_path_tiff):
 
     index = next((index for (index, d) in enumerate(lst) if d["key"] == "ResolutionUnit"), None)
     assert response.json()['items'][index]["value"] == "CENTIMETER"
-	
+    
 def test_tiff_norm_tile(client, image_path_tiff):
     _, filename = image_path_tiff
     response = client.get(f"/image/upload_test_tiff/{filename}/normalized-tile/zoom/3/ti/15", headers={"accept": "image/png"})
@@ -112,28 +112,28 @@ def test_tiff_norm_tile(client, image_path_tiff):
 
     assert width_resp == 256
     assert height_resp == 256
-	
+    
 def test_tiff_thumb(client, image_path_tiff):
-	_, filename = image_path_tiff
-	thumb_test(client, filename, "tiff")
-	
+    _, filename = image_path_tiff
+    thumb_test(client, filename, "tiff")
+    
 def test_tiff_resized(client, image_path_tiff):
-	_, filename = image_path_tiff
-	resized_test(client, filename, "tiff")
-	
+    _, filename = image_path_tiff
+    resized_test(client, filename, "tiff")
+    
 def test_tiff_mask(client, image_path_tiff):
-	_, filename = image_path_tiff
-	mask_test(client, filename, "tiff")
-	
+    _, filename = image_path_tiff
+    mask_test(client, filename, "tiff")
+    
 def test_tiff_crop(client, image_path_tiff):
-	_, filename = image_path_tiff
-	crop_test(client, filename, "tiff")
+    _, filename = image_path_tiff
+    crop_test(client, filename, "tiff")
 
 @pytest.mark.skip(reason="Does not return the correct response code")
 def test_tiff_crop_null_annot(client, image_path_tiff):
-	_, filename = image_path_tiff
-	crop_null_annot_test(client, filename, "tiff")
+    _, filename = image_path_tiff
+    crop_null_annot_test(client, filename, "tiff")
 
 def test_tiff_histogram_perimage(client, image_path_tiff):
-	_, filename = image_path_tiff
-	histogram_perimage_test(client, filename, "tiff")
+    _, filename = image_path_tiff
+    histogram_perimage_test(client, filename, "tiff")

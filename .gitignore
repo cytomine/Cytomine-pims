@@ -134,3 +134,6 @@ dev-config/
 
 # Continous integration & build
 ci/
+.vscode
+.idea
+*.iml

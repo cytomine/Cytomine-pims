@@ -161,7 +161,7 @@ def get_best_mimetype(header: str, available_types: List[str]) -> Optional[str]:
 
 
 def get_output_format(
-    extension: OutputExtension, accept_header: str,
+    extension: Optional[OutputExtension], accept_header: Optional[str],
     supported: SupportedMimeTypes
 ) -> Tuple[OutputExtension, str]:
     """
@@ -189,8 +189,10 @@ def get_output_format(
     """
     if extension and extension in mimetype_from_extension:
         response_mimetype = mimetype_from_extension.get(extension)
-    else:
+    elif accept_header:
         response_mimetype = get_best_mimetype(accept_header, list(supported.keys()))
+    else:
+        response_mimetype = None
 
     output_format = supported.get(response_mimetype)
     if output_format:

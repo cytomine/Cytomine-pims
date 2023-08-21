@@ -61,20 +61,21 @@ RUN cd /usr/local/src && \
     ldconfig
 
 # Download plugins
+ARG PLUGIN_CSV=scripts/plugin-list.csv
 WORKDIR /app
 COPY ./docker/plugins.py /app/plugins.py
+COPY ${PLUGIN_CSV} /app/plugins.csv
 
-ARG PLUGIN_CSV
 # ="enabled,name,git_url,git_branch\n"
 ENV PLUGIN_INSTALL_PATH /app/plugins
 RUN python plugins.py \
-   --plugin_csv ${PLUGIN_CSV} \
+   --plugin_csv /app/plugins.csv \
    --install_path ${PLUGIN_INSTALL_PATH} \
    --method download
 
 # Run before_vips() from plugins prerequisites
 RUN python plugins.py \
-   --plugin_csv ${PLUGIN_CSV} \
+   --plugin_csv /app/plugins.csv \
    --install_path ${PLUGIN_INSTALL_PATH} \
    --method dependencies_before_vips
 
@@ -93,7 +94,7 @@ RUN cd /usr/local/src && \
 
 # Run before_python() from plugins prerequisites
 RUN python plugins.py \
-   --plugin_csv ${PLUGIN_CSV} \
+   --plugin_csv /app/plugins.csv \
    --install_path ${PLUGIN_INSTALL_PATH} \
    --method dependencies_before_python
 
@@ -109,14 +110,9 @@ RUN pip install --no-cache-dir gunicorn==${GUNICORN_VERSION} && \
     pip install --no-cache-dir -r requirements.txt && \
     pip install --no-cache-dir setuptools==${SETUPTOOLS_VERSION} && \
     python plugins.py \
-   --plugin_csv ${PLUGIN_CSV} \
+   --plugin_csv /app/plugins.csv \
    --install_path ${PLUGIN_INSTALL_PATH} \
    --method install
-
-# Prestart configuration
-RUN touch /tmp/addHosts.sh
-COPY ./docker/prestart.sh /app/prestart.sh
-RUN chmod +x /app/prestart.sh
 
 # Add default config
 COPY ./pims-config.env /app/pims-config.env
@@ -131,6 +127,12 @@ RUN chmod +x /start-reload.sh
 
 ENV PYTHONPATH="/app:$PYTHONPATH"
 
+# entrypoint scripts
+RUN mkdir /docker-entrypoint-cytomine.d/
+COPY --from=cytomine/entrypoint-scripts:1.2.0 --chmod=774 /cytomine-entrypoint.sh /usr/local/bin/
+COPY --from=cytomine/entrypoint-scripts:1.2.0 --chmod=774 /envsubst-on-templates-and-move.sh /docker-entrypoint-cytomine.d/500-envsubst-on-templates-and-move.sh
+COPY --from=cytomine/entrypoint-scripts:1.2.0 --chmod=774 /configure-etc-hosts-reverse-proxy.sh /docker-entrypoint-cytomine.d/750-configure-etc-hosts-reverse-proxy.sh
+
 # Add app
 COPY ./pims /app/pims
 ENV MODULE_NAME="pims.application"
@@ -139,4 +141,5 @@ ENV PYTHONPATH="/app:$PYTHONPATH"
 ENV PORT=5000
 EXPOSE ${PORT}
 
+ENTRYPOINT ["cytomine-entrypoint.sh"]
 CMD ["/start.sh"]

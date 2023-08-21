@@ -62,8 +62,8 @@ def fake_files(request):
     create_fake_files(_fake_files)
 
     def teardown():
-    	if CLEAR_AT_SHUTDOWN:
-        	shutil.rmtree(test_root())
+        if CLEAR_AT_SHUTDOWN:
+            shutil.rmtree(test_root())
 
     request.addfinalizer(teardown)
     return _fake_files
@@ -99,31 +99,31 @@ def client(app):
 @pytest.fixture
 def root():
      return test_root()
-     
+
 @pytest.fixture
 def image_path_jpeg():
-	filename = "cytomine-org-logo.jpeg"
-	path = f"{test_root()}/upload_test_jpeg/"
-	return path, filename
+    filename = "cytomine-org-logo.jpeg"
+    path = f"{test_root()}/upload_test_jpeg/"
+    return path, filename
 
 @pytest.fixture
 def image_path_png():
-	filename = "cytomine-org-logo.png"
-	path = f"{test_root()}/upload_test_png/"
-	return path, filename
+    filename = "cytomine-org-logo.png"
+    path = f"{test_root()}/upload_test_png/"
+    return path, filename
 
 @pytest.fixture
 def image_path_tiff():
-	filename = "earthworm-transv-posterior-to-clitellum-02.tiff"
-	path = f"{test_root()}/upload_test_tiff/"
-	return path, filename
-	
+    filename = "earthworm-transv-posterior-to-clitellum-02.tiff"
+    path = f"{test_root()}/upload_test_tiff/"
+    return path, filename
+
 @pytest.fixture
 def image_path_excentric_filename():
-	filename = "Test special char %(_!.tiff"
-	path = f"{test_root()}/upload_test_excentric"
-	return path, filename
-	
+    filename = "Test special char %(_!.tiff"
+    path = f"{test_root()}/upload_test_excentric"
+    return path, filename
+
 @contextmanager
 def not_raises(expected_exc):
     try:

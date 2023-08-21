@@ -1,4 +1,5 @@
 # pims
+
 Python Image Management Server
 
 ## Run development server with Docker
@@ -14,6 +15,7 @@ PIMS plugin system is not yet easily manageable in a Docker container for develo
 as PIMS requires a lot of low-level dependencies, developing using Docker would be a benefit.
 
 ## Run development server locally 
+
 ### Dependencies
 First, dependencies must be installed
 1. Dependencies in `docker/backend.dockerfile` must be installed first. For plugins, prerequisites 

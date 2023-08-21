@@ -179,16 +179,30 @@ def import_(filepath, body):
 
 
 @router.get('/file/{filepath:path}/export', tags=['Export'])
-def export_file(path: Path = Depends(filepath_parameter)):
+def export_file(
+    background: BackgroundTasks,
+    path: Path = Depends(filepath_parameter)
+):
     """
-    Export a file. All files in the server base path can be exported.
+    Export a file. All files with an identified PIMS role in the server base path can be exported.
     """
+    if not (path.has_upload_role() or path.has_original_role() or path.has_spatial_role() or path.has_spectral_role()):
+        raise BadRequestException()
+
     if path.is_dir():
-        # TODO: zip and return the folder archive ?
-        raise NotAFileProblem(path)
+        tmp_export = Path(f"/tmp/{unique_name_generator()}")
+        make_zip_archive(tmp_export, path)
+
+        def cleanup(tmp):
+            tmp.unlink(missing_ok=True)
+
+        background.add_task(cleanup, tmp_export)
+        exported = tmp_export
+    else:
+        exported = path
 
     return FileResponse(
-        path,
+        exported,
         media_type="application/octet-stream",
         filename=path.name
     )
@@ -222,7 +236,7 @@ def export_upload(
     return FileResponse(
         upload_file,
         media_type=media_type,
-        filename=path.name
+        filename=upload_file.name
     )
 
 

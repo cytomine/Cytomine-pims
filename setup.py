@@ -47,7 +47,7 @@ REQUIRED = [
     'aiofiles>=0.7.0',
     'aioredis[hiredis]>=2.0.0',
     'celery>=5.0.0',
-
+    'matplotlib>=3.5.0',
     'Pint>=0.17',
     'numpy>=1.24.1',
     'Pillow>=9.1.1',
@@ -137,7 +137,7 @@ class UploadCommand(Command):
 
 # Where the magic happens:
 setup(
-    name=about['__title__'],
+    name=NAME,
     version=about['__version__'],
     description=about['__description__'],
     long_description=long_description,

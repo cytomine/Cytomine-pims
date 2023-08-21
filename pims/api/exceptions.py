@@ -18,6 +18,11 @@ from fastapi.responses import JSONResponse
 from pims.api.utils.parameter import path2filepath
 
 
+def clean_filepath(filepath):
+    from pims.config import get_settings
+    return path2filepath(filepath, config=get_settings())
+
+
 class ProblemException(Exception):
     def __init__(self, status, title=None, detail=None, **ext):
         self.status: int = status
@@ -64,8 +69,7 @@ def add_problem_exception_handler(app: FastAPI):
 
 class FilepathNotFoundProblem(NotFoundException):
     def __init__(self, filepath):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
         title = 'Filepath not found'
         detail = f'The filepath {filepath} does not exist.'
         super().__init__(title, detail)
@@ -73,8 +77,7 @@ class FilepathNotFoundProblem(NotFoundException):
 
 class NoAppropriateRepresentationProblem(NotFoundException):
     def __init__(self, filepath, representation=None):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = 'No appropriate representation found'
         detail = f'The filepath {filepath} does not have an appropriate representation'
@@ -85,8 +88,7 @@ class NoAppropriateRepresentationProblem(NotFoundException):
 
 class NotADirectoryProblem(BadRequestException):
     def __init__(self, filepath):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = 'Not a directory'
         detail = f'The filepath {filepath} is not a directory'
@@ -95,8 +97,7 @@ class NotADirectoryProblem(BadRequestException):
 
 class NotAFileProblem(BadRequestException):
     def __init__(self, filepath):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = 'Not a file'
         detail = f'The filepath {filepath} is not a file'
@@ -105,8 +106,7 @@ class NotAFileProblem(BadRequestException):
 
 class NoMatchingFormatProblem(BadRequestException):
     def __init__(self, filepath):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = "No matching format found"
         detail = f"The filepath {filepath} is recognized by any of the available formats."
@@ -115,8 +115,7 @@ class NoMatchingFormatProblem(BadRequestException):
 
 class MetadataParsingProblem(BadRequestException):
     def __init__(self, filepath, detail=None, **ext):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = "Metadata cannot be correctly understood."
         if detail is None:
@@ -126,8 +125,7 @@ class MetadataParsingProblem(BadRequestException):
 
 class PyramidParsingProblem(BadRequestException):
     def __init__(self, filepath, detail=None, **ext):
-        if type(filepath) is not str:
-            filepath = path2filepath(filepath)
+        filepath = clean_filepath(filepath)
 
         title = "Pyramid cannot be correctly understood"
         super().__init__(title, detail, **ext)

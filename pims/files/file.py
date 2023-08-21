@@ -13,6 +13,7 @@
 #  * limitations under the License.
 from __future__ import annotations
 
+import os
 import shutil
 from datetime import datetime
 from enum import Enum
@@ -142,7 +143,7 @@ class Path(PlatformPath, _Path, SafelyCopiable):
     def size(self) -> int:
         """Get file size, in bytes"""
         if self.is_dir():
-            return sum([it.size for it in self.iterdir()])
+            return sum([it.size for it in self.iterdir() if os.access(it, os.R_OK)])
         if not self.is_file() and not self.is_dir():
             return 0
         return self.stat().st_size
