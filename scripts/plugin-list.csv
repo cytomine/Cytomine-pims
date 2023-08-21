@@ -1,4 +1,4 @@
-enabled,name,git_url,git_branch_or_tag
-1,pims-plugin-format-openslide,https://github.com/Cytomine-ULiege/pims-plugin-format-openslide.git,5f8a92e37d2a47145f0b375db541b591490361bc
-1,pims-plugin-format-bioformats,https://github.com/Cytomine-ULiege/pims-plugin-format-bioformats.git,29acd1307f4d9026a88baae1b04aa07e925ee2e5
-1,pims-plugin-format-dicom,https://github.com/Cytomine-ULiege/pims-plugin-format-dicom.git,12de2d388f9a6ffc2e302a298c7dbb02dc9396ce
+enabled,name,git_url,git_branch_or_tag,resolution_order
+1,pims-plugin-format-openslide,https://github.com/Cytomine-ULiege/pims-plugin-format-openslide.git,5f8a92e37d2a47145f0b375db541b591490361bc,1
+1,pims-plugin-format-bioformats,https://github.com/Cytomine-ULiege/pims-plugin-format-bioformats.git,29acd1307f4d9026a88baae1b04aa07e925ee2e5,-1
+1,pims-plugin-format-dicom,https://github.com/Cytomine-ULiege/pims-plugin-format-dicom.git,12de2d388f9a6ffc2e302a298c7dbb02dc9396ce,2

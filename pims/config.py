@@ -24,6 +24,7 @@ logger = logging.getLogger("pims.app")
 class ReadableSettings(BaseSettings):
     root: str
     pending_path: str
+    checker_resolution_file: str = "checkerResolution.csv"
     default_image_size_safety_mode: str = "SAFE_REJECT"
     default_annotation_origin: str = "LEFT_TOP"
     output_size_limit: int = 10000
@@ -62,11 +63,11 @@ class Settings(ReadableSettings):
 
     class Config:
         env_file = "pims-config.env"
-        env_file_encoding = 'utf-8'
+        env_file_encoding = "utf-8"
 
 
 @lru_cache()
 def get_settings():
-    env_file = os.getenv('CONFIG_FILE', 'pims-config.env')
+    env_file = os.getenv("CONFIG_FILE", "pims-config.env")
     logger.info(f"[green]Loading config from {env_file}")
     return Settings(_env_file=env_file)

@@ -1,6 +1,6 @@
-# pims
+# cytomine-pims
 
-Python Image Management Server
+Cytomine Python Image Management Server
 
 ## Run development server with Docker
 
@@ -123,3 +123,24 @@ One can find below the listing of the PIMS plugins that have already been implem
 | Openslide  | BIF, MRXS, NDPi, Philips TIFF, SCN, SVS, VMS  | https://github.com/cytomine/pims-plugin-format-openslide/tree/main/pims_plugin_format_openslide  | Depends on VIPS and Openslide. |
 | Example  | / |  https://github.com/cytomine/pims-plugin-format-example | This is just a example plugin to explain how to implement a PIMS plugin.  |
 | WSI Dicom  | WSIDICOM  | https://github.com/cytomine/pims-plugin-format-dicom  | PIMS plugin based on the WSI Dicom format implemented [here](https://github.com/imi-bigpicture/wsidicom). Annotations management not implemented yet. |
+
+### Docker image with plugins resolution order 
+During the upload of an image, a check is made to ensure the existence of the image format in accordance with the plugins installed with the Cytomine instance (these pulgins are specified in the CSV file named `plugin-list.csv`). To ensure that the uploaded file is handle with the right format resolver, one must define the resolution order of the plugins such that the most conservative checker happens before the less conservative one. 
+
+One will find a resolution order column in the `plugin-list.csv`: the values must be assigned either an integer value or left unset. This resolution order is used to arrange plugins in relation to PIMS's native formats, which are given a default order of zero (0).The plugin that has the smallest, or most negative, integer for its resolution order will be checked before any other. This means that if a plugin's resolution order is more negative than all others, its formats will be evaluated first, even ahead of PIMS's native formats. In situations where the resolution order isn't specified for a plugin, it automatically inherits the same order as the native formats in PIMS, which is 0. This means it will be checked alongside, but not before, the native formats.
+
+### Run development server locally with plugins resolution order 
+
+In development mode, one can now create a new `checkerResolution.csv` file (name and path of this file can be defined in `pims-dev-config.env`) in order to specify format checkers resolution order. 
+
+The CSV file must apply the following convention: 
+| name | resolution_order | 
+|---|---|
+|`pims_plugin_format_{name}`| `INT` or `empty`|  
+
+* `pims_plugin_format_{name}` must be the string referring to the name of the plugin as specified in the source directory. 
+* the term 'resolution order' must be assigned either an integer value or left unset. This resolution order is used to arrange plugins in relation to PIMS's native formats, which are given a default order of zero (0).
+The plugin that has the smallest, or most negative, integer for its resolution order will be checked before any other. This means that if a plugin's resolution order is more negative than all others, its formats will be evaluated first, even ahead of PIMS's native formats.
+In situations where the resolution order isn't specified for a plugin, it automatically inherits the same order as the native formats in PIMS, which is 0. This means it will be checked alongside, but not before, the native formats.
+
+To create the necessary file, you can modify the plugin-list.csv file to include your desired resolution order. After making these changes, execute the following command within the Docker directory: `python plugins.py --plugin_csv_path=/pims-ce/scripts/plugin-list.csv --checkerResolution_file_path=/pims-ce/checkerResolution.csv --method=checker_resolution_file`
