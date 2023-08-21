@@ -62,10 +62,14 @@ REQUIRED = [
 
     'Shapely>=1.8.0',
     'rasterio>=1.2.1',
-    'cytomine-python-client>=2.3.0',
+
+    # Must be at end to work with dependency links
+    'Cytomine-python-client>=2.8.3',
 ]
 
-DEPENDENCY_LINKS = [ ]
+DEPENDENCY_LINKS = [
+    'https://packagecloud.io/cytomine-uliege/Cytomine-python-client/pypi/simple/cytomine-python-client/'
+]
 
 # What packages are optional?
 EXTRAS = {
