@@ -1,0 +1,105 @@
+name: Test PIMS
+
+on:
+  pull_request:
+    branches:
+      - master
+
+env:
+  IMAGE_NAME: ${{ github.repository }}
+  REPORT: test-report.xml
+  REGISTRY: ghcr.io
+
+jobs:
+  build-pims:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    outputs:
+      tags: ${{ steps.meta.outputs.tags }}
+
+    steps:
+      - name: Set up the repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build pims image
+        uses: docker/build-push-action@v4
+        with:
+          build-args: |
+            ENTRYPOINT_SCRIPTS_VERSION=${{ vars.ENTRYPOINT_SCRIPTS_VERSION }}
+            GUNICORN_VERSION=${{ vars.GUNICORN_VERSION }}
+            OPENJPEG_URL=${{ vars.OPENJPEG_URL }}
+            OPENJPEG_VERSION=${{ vars.OPENJPEG_VERSION }}
+            PY_VERSION=${{ vars.PYTHON_VERSION }}
+            SETUPTOOLS_VERSION=${{ vars.SETUPTOOLS_VERSION }}
+            UBUNTU_VERSION=${{ vars.UBUNTU_VERSION }}
+            VIPS_URL=${{ vars.VIPS_URL }}
+            VIPS_VERSION=${{ vars.VIPS_VERSION }}
+          context: .
+          file: ./docker/backend.dockerfile
+          labels: ${{ steps.meta.outputs.labels }}
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+
+  test-pims:
+    runs-on: ubuntu-latest
+    needs: build-pims
+
+    container:
+      image: ${{ needs.build-pims.outputs.tags }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+
+    steps:
+      - name: Set up the repository
+        uses: actions/checkout@v3
+
+      - name: Set up pytest
+        run: pip install pytest
+
+      - name: Run tests
+        run: pytest tests --junitxml=${{ env.REPORT }}
+
+      - name: Upload tests report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ env.REPORT }}
+          path: ${{ env.REPORT }}
+          retention-days: 30
+
+  clean-pims:
+    runs-on: ubuntu-latest
+    needs:
+      - test-pims
+
+    steps:
+      - name: Delete pims test image from registry
+        uses: actions/github-script@v6
+        with:
+          script: |
+            try {
+              github.rest.packages.deletePackageForOrg({
+                org: context.repo.owner,
+                package_type: "container",
+                package_name: "pims",
+              });
+            } catch (error) {
+              core.setFailed(error.message);
+            }
