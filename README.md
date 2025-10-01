@@ -1,5 +1,8 @@
 # cytomine-pims
 
+> [!WARNING]  
+> **Deprecated:** This repository is no longer maintained. Please see [cytomine/cytomine](https://github.com/cytomine/cytomine) for the latest version.
+
 Cytomine Python Image Management Server
 
 ## Run development server with Docker
